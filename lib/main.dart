@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:weatherapp/screen/homescreen.dart';
 import 'package:chewie/chewie.dart';
+import 'package:weatherapp/widget/columns.dart';
 
 import 'backend/api.dart';
 
@@ -90,24 +91,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       SizedBox(),
-                      AnimSearchBar(
-                        width: MediaQuery.of(context).size.width - 150,
-                        color: Color(0x0013),
-                        textController: x,
-                        onSuffixTap: () {
-                          setState(() {
-                            vision = true;
-                          });
-                        },
-                        onSubmitted: (String) {
-                          setState(() {
-                            vision = true;
-                          });
-                          fetchJson(x.text).then((value) {
-                            setState(() {
-                              well.addAll(value);
-                            });
-                          });
+                      IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () {
+                          showSearch(
+                            context: context,
+                            delegate: CustomSearchDelegate(),
+                          );
                         },
                       )
                     ],
@@ -139,8 +129,60 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       width: MediaQuery.of(context).size.width - 40,
                       height: 170,
                       decoration: BoxDecoration(
-                          color: Colors.blue,
+                          color: Color.fromARGB(255, 68, 162, 239),
                           borderRadius: BorderRadius.circular(25)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                child: Text(
+                                  'Cloudy conditions expected around 2AM',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 12),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Divider(
+                                endIndent: 3,
+                                thickness: 0.07,
+                                height: 1,
+                                color: Colors.white,
+                              ),
+                              Row(
+                                children: [
+                                  AutocompleteApp(
+                                    day: 'Now',
+                                    temp: '22',
+                                  ),
+                                  AutocompleteApp(
+                                    day: 'Wed',
+                                    temp: '19',
+                                  ),
+                                  AutocompleteApp(
+                                    day: 'Thu',
+                                    temp: '25',
+                                  ),
+                                  AutocompleteApp(
+                                    day: 'Fri',
+                                    temp: '18',
+                                  ),
+                                  AutocompleteApp(
+                                    day: 'Sat',
+                                    temp: '20',
+                                  ),
+                                  AutocompleteApp(
+                                    day: 'Sun',
+                                    temp: '19',
+                                  ),
+                                ],
+                              )
+                            ]),
+                      ),
                     ),
                   ),
                   Padding(
@@ -160,5 +202,69 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         ),
       ]),
     );
+  }
+}
+
+class CustomSearchDelegate extends SearchDelegate {
+  @override
+  List<String> searchTerms = ['Algeria', 'Angola', 'Afghanistan'];
+
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        color: Colors.redAccent,
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      )
+    ];
+  }
+
+  Widget buildLeading(BuildContext context) {
+    color:
+    Colors.black;
+    return IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          close(context, null);
+        });
+  }
+
+  Widget buildResults(BuildContext context) {
+    color:
+    Colors.black;
+    List<String> matchQuery = [];
+    for (var fruit in searchTerms) {
+      if (fruit.toLowerCase().contains(query.toLowerCase())) {
+        matchQuery.add(fruit);
+      }
+    }
+    return ListView.builder(
+        itemCount: matchQuery.length,
+        itemBuilder: (context, index) {
+          var result = matchQuery[index];
+          return ListTile(
+            tileColor: Colors.amber,
+            title: Text(result),
+          );
+        });
+  }
+
+  Widget buildSuggestions(BuildContext context) {
+    List<String> matchQuery = [];
+    for (var fruit in searchTerms) {
+      if (fruit.toLowerCase().contains(query.toLowerCase())) {
+        matchQuery.add(fruit);
+      }
+    }
+    return ListView.builder(
+        itemCount: matchQuery.length,
+        itemBuilder: (context, index) {
+          var result = matchQuery[index];
+          return ListTile(
+            title: Text(result),
+          );
+        });
   }
 }
